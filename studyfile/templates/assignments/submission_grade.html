@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}{% translate "Grade Submission" %} - StudyFile{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'assignments:list' %}">{% translate "Assignments" %}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'assignments:detail' submission.assignment.pk %}">{{ submission.assignment.title }}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'assignments:submission_detail' submission.pk %}">{% translate "Submission" %}</a></li>
+      <li class="breadcrumb-item active">{% translate "Grade" %}</li>
+    </ol>
+  </nav>
+
+  <h1>{% translate "Grade Submission" %}</h1>
+
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">{% translate "Submission Info" %}</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>{% translate "Student" %}:</strong> {{ submission.student.name|default:submission.student.username }}</p>
+          <p><strong>{% translate "Submitted At" %}:</strong> {{ submission.submitted_at|date:"Y-m-d H:i" }}</p>
+          {% if submission.comment %}
+            <p><strong>{% translate "Comment" %}:</strong></p>
+            <p class="text-muted">{{ submission.comment|truncatewords:30 }}</p>
+          {% endif %}
+          <a href="{{ submission.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+            {% translate "Download File" %}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">{% translate "Grade" %}</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div class="mt-3">
+              <button type="submit" class="btn btn-success">{% translate "Save Grade" %}</button>
+              <a href="{% url 'assignments:submission_detail' submission.pk %}" class="btn btn-outline-secondary">{% translate "Cancel" %}</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

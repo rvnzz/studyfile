@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}{% translate "Submit Assignment" %} - StudyFile{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'assignments:list' %}">{% translate "Assignments" %}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'assignments:detail' assignment.pk %}">{{ assignment.title }}</a></li>
+      <li class="breadcrumb-item active">{% translate "Submit" %}</li>
+    </ol>
+  </nav>
+
+  <h1>{% translate "Submit Assignment" %}</h1>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">{{ assignment.title }}</h5>
+      <p class="card-text">{{ assignment.description|truncatewords:50 }}</p>
+      {% if assignment.due_date %}
+        <p class="text-muted">{% translate "Due Date" %}: {{ assignment.due_date|date:"Y-m-d H:i" }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="mt-3">
+          <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
+          <a href="{% url 'assignments:detail' assignment.pk %}" class="btn btn-outline-secondary">{% translate "Cancel" %}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}

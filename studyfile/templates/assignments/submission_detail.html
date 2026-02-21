@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Submission" %} - StudyFile{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'assignments:list' %}">{% translate "Assignments" %}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'assignments:detail' submission.assignment.pk %}">{{ submission.assignment.title }}</a></li>
+      <li class="breadcrumb-item active">{% translate "Submission" %}</li>
+    </ol>
+  </nav>
+
+  <h1>{% translate "Submission Details" %}</h1>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">{{ submission.assignment.title }}</h5>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p><strong>{% translate "Student" %}:</strong> {{ submission.student.name|default:submission.student.username }}</p>
+              <p><strong>{% translate "Group" %}:</strong> {{ submission.student.study_group.name|default:"-" }}</p>
+            </div>
+            <div class="col-md-6">
+              <p><strong>{% translate "Submitted At" %}:</strong> {{ submission.submitted_at|date:"Y-m-d H:i" }}</p>
+              <p>
+                <strong>{% translate "Status" %}:</strong>
+                <span class="badge bg-{% if submission.status == 'graded' %}success{% elif submission.status == 'returned' %}warning{% else %}info{% endif %}">
+                  {{ submission.get_status_display }}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          {% if submission.comment %}
+            <div class="mb-3">
+              <h6>{% translate "Student Comment" %}</h6>
+              <p class="text-muted">{{ submission.comment|linebreaks }}</p>
+            </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <h6>{% translate "Submitted File" %}</h6>
+            <a href="{{ submission.file.url }}" class="btn btn-outline-primary" target="_blank">
+              {% translate "Download File" %}
+            </a>
+          </div>
+
+          {% if submission.grade %}
+            <hr>
+            <div class="bg-light p-3 rounded">
+              <h6>{% translate "Grade" %}</h6>
+              <p class="mb-1"><strong>{% translate "Score" %}:</strong> <span class="badge bg-success fs-6">{{ submission.grade }}</span></p>
+              {% if submission.graded_at %}
+                <p class="text-muted small">{% translate "Graded At" %}: {{ submission.graded_at|date:"Y-m-d H:i" }}</p>
+              {% endif %}
+              {% if submission.teacher_comment %}
+                <p class="mb-0"><strong>{% translate "Teacher Comment" %}:</strong></p>
+                <p class="mb-0">{{ submission.teacher_comment|linebreaks }}</p>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+
+        {% if user.is_teacher or user.is_admin %}
+          <div class="card-footer">
+            <a href="{% url 'assignments:submission_grade' submission.pk %}" class="btn btn-success">
+              {% translate "Grade Submission" %}
+            </a>
+            <a href="{% url 'assignments:detail' submission.assignment.pk %}" class="btn btn-outline-secondary">
+              {% translate "Back to Assignment" %}
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
