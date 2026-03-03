@@ -8,7 +8,6 @@ from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import redirect
-from django.utils.translation import gettext_lazy as _
 
 if typing.TYPE_CHECKING:
     from allauth.socialaccount.models import SocialLogin
@@ -31,9 +30,7 @@ class AccountAdapter(DefaultAccountAdapter):
         if not user.is_approved and not user.is_staff and not user.is_superuser:
             messages.error(
                 request,
-                _(
-                    "Your account is pending approval. Please wait for an administrator to approve your registration.",
-                ),
+                "Ваша учетная запись ожидает одобрения. Пожалуйста, дождитесь, пока администратор одобрит вашу регистрацию.",
             )
             raise ImmediateHttpResponse(redirect("account_login"))
         return super().pre_login(request, user, **kwargs)
@@ -83,9 +80,7 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         ):
             messages.error(
                 request,
-                _(
-                    "Your account is pending approval. Please wait for an administrator to approve your registration.",
-                ),
+                "Ваша учетная запись ожидает одобрения. Пожалуйста, дождитесь, пока администратор одобрит вашу регистрацию.",
             )
             raise ImmediateHttpResponse(redirect("account_login"))
         return super().pre_social_login(request, sociallogin)

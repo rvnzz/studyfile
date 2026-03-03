@@ -1,23 +1,22 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
-{% load i18n %}
 
 {% block title %}
-  {% if object %}{% translate "Edit Assignment" %}{% else %}{% translate "Create Assignment" %}{% endif %} - StudyFile
+  {% if object %}Редактировать задание{% else %}Создать задание{% endif %} - StudyFile
 {% endblock title %}
 
 {% block content %}
 <div class="container mt-4">
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'assignments:list' %}">{% translate "Assignments" %}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'assignments:list' %}">Задания</a></li>
       <li class="breadcrumb-item active">
-        {% if object %}{% translate "Edit" %}{% else %}{% translate "Create" %}{% endif %}
+        {% if object %}Редактирование{% else %}Создание{% endif %}
       </li>
     </ol>
   </nav>
 
-  <h1>{% if object %}{% translate "Edit Assignment" %}{% else %}{% translate "Create New Assignment" %}{% endif %}</h1>
+  <h1>{% if object %}Редактировать задание{% else %}Создать новое задание{% endif %}</h1>
 
   <div class="row">
     <div class="col-md-8">
@@ -26,9 +25,9 @@
         {{ form|crispy }}
         <div class="mt-3">
           <button type="submit" class="btn btn-primary">
-            {% if object %}{% translate "Update" %}{% else %}{% translate "Create" %}{% endif %}
+            {% if object %}Обновить{% else %}Создать{% endif %}
           </button>
-          <a href="{% url 'assignments:list' %}" class="btn btn-outline-secondary">{% translate "Cancel" %}</a>
+          <a href="{% url 'assignments:list' %}" class="btn btn-outline-secondary">Отмена</a>
         </div>
       </form>
     </div>

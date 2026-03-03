@@ -11,6 +11,11 @@ urlpatterns = [
     path("<int:pk>/", views.AssignmentDetailView.as_view(), name="detail"),
     path("<int:pk>/update/", views.AssignmentUpdateView.as_view(), name="update"),
     path("<int:pk>/delete/", views.AssignmentDeleteView.as_view(), name="delete"),
+    path(
+        "<int:pk>/download-submissions/",
+        views.AssignmentSubmissionsDownloadView.as_view(),
+        name="download_submissions",
+    ),
     # Submission URLs
     path(
         "<int:assignment_pk>/submit/",

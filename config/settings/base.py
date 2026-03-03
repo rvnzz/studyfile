@@ -31,7 +31,6 @@ LANGUAGE_CODE = "ru-ru"
 
 LANGUAGES = [
     ("ru-ru", _("Russian")),
-    ("en-us", _("English")),
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1

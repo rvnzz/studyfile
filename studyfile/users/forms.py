@@ -2,7 +2,6 @@ from allauth.account.forms import SignupForm
 from allauth.socialaccount.forms import SignupForm as SocialSignupForm
 from django import forms
 from django.contrib.auth import forms as admin_forms
-from django.utils.translation import gettext_lazy as _
 
 from .models import StudyGroup
 from .models import User
@@ -22,7 +21,7 @@ class UserAdminCreationForm(admin_forms.AdminUserCreationForm):
     class Meta(admin_forms.UserCreationForm.Meta):  # type: ignore[name-defined]
         model = User
         error_messages = {
-            "username": {"unique": _("This username has already been taken.")},
+            "username": {"unique": "Это имя пользователя уже занято."},
         }
 
 
@@ -36,14 +35,14 @@ class UserSignupForm(SignupForm):
     name = forms.CharField(
         max_length=255,
         required=True,
-        label=_("Full Name"),
-        help_text=_("Enter your full name"),
+        label="Полное имя",
+        help_text="Введите ваше полное имя",
     )
     study_group = forms.ModelChoiceField(
         queryset=StudyGroup.objects.all(),
         required=True,
-        label=_("Study Group"),
-        help_text=_("Select your study group"),
+        label="Группа",
+        help_text="Выберите вашу учебную группу",
     )
 
     def save(self, request):
@@ -65,14 +64,14 @@ class UserSocialSignupForm(SocialSignupForm):
     name = forms.CharField(
         max_length=255,
         required=True,
-        label=_("Full Name"),
-        help_text=_("Enter your full name"),
+        label="Полное имя",
+        help_text="Введите ваше полное имя",
     )
     study_group = forms.ModelChoiceField(
         queryset=StudyGroup.objects.all(),
         required=True,
-        label=_("Study Group"),
-        help_text=_("Select your study group"),
+        label="Группа",
+        help_text="Выберите вашу учебную группу",
     )
 
     def save(self, request):

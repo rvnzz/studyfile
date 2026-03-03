@@ -1,19 +1,27 @@
+import io
+import zipfile
+from pathlib import Path
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models import QuerySet
+from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
 from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
+from django.views.generic import View
+
+from studyfile.users.models import StudyGroup
 
 from .forms import AssignmentForm
 from .forms import SubmissionForm
@@ -52,23 +60,45 @@ class AssignmentListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self) -> QuerySet:
         user = self.request.user
+        queryset = Assignment.objects.all()
+
         if user.is_teacher or user.is_admin:
             # Teachers see their own assignments
-            return Assignment.objects.filter(teacher=user).select_related(
-                "subject",
-                "subject__study_group",
-            )
-        # Students see assignments for their group (via subject)
-        if user.study_group:
-            return Assignment.objects.filter(
-                subject__study_group=user.study_group,
-                is_active=True,
-            ).select_related("subject", "teacher", "subject__study_group")
-        return Assignment.objects.none()
+            queryset = queryset.filter(teacher=user)
+        elif user.is_student:
+            # Students see assignments for their group (via subject)
+            if user.study_group:
+                queryset = queryset.filter(
+                    subject__study_group=user.study_group,
+                    is_active=True,
+                )
+            else:
+                return Assignment.objects.none()
+
+        # Apply group filter if provided
+        group_filter = self.request.GET.get("group")
+        if group_filter:
+            queryset = queryset.filter(subject__study_group_id=group_filter)
+
+        # Apply subject filter if provided
+        subject_filter = self.request.GET.get("subject")
+        if subject_filter:
+            queryset = queryset.filter(subject_id=subject_filter)
+
+        return queryset.select_related("subject", "teacher", "subject__study_group")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
+
+        # Add filter options for teachers/admins
+        if user.is_teacher or user.is_admin:
+            from studyfile.users.models import Subject
+
+            context["study_groups"] = StudyGroup.objects.all()
+            context["subjects"] = Subject.objects.all()
+            context["selected_group"] = self.request.GET.get("group", "")
+            context["selected_subject"] = self.request.GET.get("subject", "")
 
         if user.is_student and user.study_group:
             # Add submission status for each assignment
@@ -138,7 +168,7 @@ class AssignmentCreateView(TeacherRequiredMixin, CreateView):
         return kwargs
 
     def get_success_url(self):
-        messages.success(self.request, _("Assignment created successfully."))
+        messages.success(self.request, "Задание успешно создано.")
         return reverse("assignments:list")
 
 
@@ -161,7 +191,7 @@ class AssignmentUpdateView(TeacherRequiredMixin, UpdateView):
         return kwargs
 
     def get_success_url(self):
-        messages.success(self.request, _("Assignment updated successfully."))
+        messages.success(self.request, "Задание успешно обновлено.")
         return reverse("assignments:detail", kwargs={"pk": self.object.pk})
 
 
@@ -178,7 +208,7 @@ class AssignmentDeleteView(TeacherRequiredMixin, DeleteView):
         return Assignment.objects.filter(teacher=self.request.user)
 
     def delete(self, request, *args, **kwargs):
-        messages.success(request, _("Assignment deleted successfully."))
+        messages.success(request, "Задание успешно удалено.")
         return super().delete(request, *args, **kwargs)
 
 
@@ -194,24 +224,24 @@ class SubmissionCreateView(LoginRequiredMixin, CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_student:
-            return HttpResponseForbidden(_("Only students can submit assignments."))
+            return HttpResponseForbidden("Только студенты могут сдавать задания.")
         self.assignment = get_object_or_404(Assignment, pk=kwargs["assignment_pk"])
 
         # Check if student is in target group (via subject)
         if request.user.study_group != self.assignment.subject.study_group:
-            return HttpResponseForbidden(_("You are not assigned to this assignment."))
+            return HttpResponseForbidden("Вы не назначены на это задание.")
 
         # Check if already submitted
         if Submission.objects.filter(
             assignment=self.assignment,
             student=request.user,
         ).exists():
-            messages.warning(request, _("You have already submitted this assignment."))
+            messages.warning(request, "Вы уже сдали это задание.")
             return redirect("assignments:detail", pk=self.assignment.pk)
 
         # Check due date
         if self.assignment.due_date and self.assignment.due_date < timezone.now():
-            messages.error(request, _("The deadline for this assignment has passed."))
+            messages.error(request, "Срок сдачи этого задания истек.")
             return redirect("assignments:detail", pk=self.assignment.pk)
 
         return super().dispatch(request, *args, **kwargs)
@@ -228,7 +258,7 @@ class SubmissionCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def get_success_url(self):
-        messages.success(self.request, _("Assignment submitted successfully."))
+        messages.success(self.request, "Задание успешно сдано.")
         return reverse("assignments:detail", kwargs={"pk": self.assignment.pk})
 
 
@@ -263,7 +293,7 @@ class SubmissionGradeView(TeacherRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         form.instance.graded_at = timezone.now()
-        messages.success(self.request, _("Submission graded successfully."))
+        messages.success(self.request, "Сдача успешно оценена.")
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -291,3 +321,50 @@ class TeacherSubmissionsListView(TeacherRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["status_filter"] = self.request.GET.get("status", "")
         return context
+
+
+class AssignmentSubmissionsDownloadView(TeacherRequiredMixin, View):
+    """Download all submissions for an assignment as a ZIP archive."""
+
+    def get(self, request, pk):
+        assignment = get_object_or_404(Assignment, pk=pk)
+
+        # Check permission - only teacher who created the assignment or admin can download
+        if not request.user.is_admin and assignment.teacher != request.user:
+            return HttpResponseForbidden(
+                "У вас нет разрешения на скачивание этих сдач.",
+            )
+
+        submissions = Submission.objects.filter(assignment=assignment).select_related(
+            "student",
+        )
+
+        if not submissions.exists():
+            messages.warning(request, "Нет сдач для скачивания по этому заданию.")
+            return redirect("assignments:detail", pk=pk)
+
+        # Create ZIP file in memory
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            for submission in submissions:
+                if submission.file:
+                    file_path = submission.file.path
+                    file_name = Path(file_path).name
+
+                    # Create a unique filename with student info
+                    student_display = submission.student.name or submission.student.username
+                    safe_name = "".join(c if c.isalnum() or c in " _-" else "_" for c in student_display).strip()
+                    original_ext = Path(file_name).suffix
+                    new_filename = f"{safe_name}_{submission.pk}{original_ext}"
+
+                    # Add file to ZIP
+                    zip_file.write(file_path, new_filename)
+
+        # Prepare response
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.read(), content_type="application/zip")
+        response["Content-Disposition"] = (
+            f'attachment; filename="submissions_{assignment.title.replace(" ", "_")}.zip"'
+        )
+
+        return response

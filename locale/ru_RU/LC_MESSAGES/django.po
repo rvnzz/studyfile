@@ -289,3 +289,40 @@ msgstr "Просмотр"
 
 msgid "No submissions found."
 msgstr "Сдачи не найдены."
+
+#: studyfile/templates/base.html
+msgid "Assignment Management System for Students and Teachers"
+msgstr "Система управления заданиями для студентов и преподавателей"
+
+msgid "Author"
+msgstr "Автор"
+
+#: studyfile/templates/assignments/assignment_list.html
+msgid "Filter by Group"
+msgstr "Фильтр по группе"
+
+msgid "All Groups"
+msgstr "Все группы"
+
+msgid "Filter by Subject"
+msgstr "Фильтр по предмету"
+
+msgid "All Subjects"
+msgstr "Все предметы"
+
+msgid "Apply Filter"
+msgstr "Применить фильтр"
+
+msgid "Clear"
+msgstr "Очистить"
+
+#: studyfile/templates/assignments/assignment_detail.html
+msgid "Download All (ZIP)"
+msgstr "Скачать все (ZIP)"
+
+#: studyfile/assignments/views.py
+msgid "You don't have permission to download these submissions."
+msgstr "У вас нет разрешения на скачивание этих сдач."
+
+msgid "No submissions to download for this assignment."
+msgstr "Нет сдач для скачивания по этому заданию."
