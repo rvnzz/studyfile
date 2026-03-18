@@ -1,5 +1,4 @@
 from django import forms
-from django.utils.translation import gettext_lazy as _
 
 from studyfile.users.models import TeacherSubject
 
@@ -55,7 +54,7 @@ class SubmissionForm(forms.ModelForm):
         fields = ["file", "comment"]
         widgets = {
             "comment": forms.Textarea(
-                attrs={"rows": 3, "placeholder": _("Optional comment")},
+                attrs={"rows": 3, "placeholder": "Необязательный комментарий"},
             ),
         }
 

@@ -2,19 +2,18 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import CharField
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 
 
 class StudyGroup(models.Model):
     """Study group for students."""
 
-    name = models.CharField(_("Group Name"), max_length=100, unique=True)
-    description = models.TextField(_("Description"), blank=True)
-    created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
+    name = models.CharField("Название группы", max_length=100, unique=True)
+    description = models.TextField("Описание", blank=True)
+    created_at = models.DateTimeField("Создано", auto_now_add=True)
 
     class Meta:
-        verbose_name = _("Study Group")
-        verbose_name_plural = _("Study Groups")
+        verbose_name = "Группа"
+        verbose_name_plural = "Группы"
         ordering = ["name"]
 
     def __str__(self) -> str:
@@ -24,21 +23,21 @@ class StudyGroup(models.Model):
 class Subject(models.Model):
     """Subject/course in the curriculum - each subject belongs to one study group."""
 
-    name = models.CharField(_("Subject Name"), max_length=200)
-    code = models.CharField(_("Subject Code"), max_length=20, blank=True)
-    description = models.TextField(_("Description"), blank=True)
+    name = models.CharField("Название предмета", max_length=200)
+    code = models.CharField("Код предмета", max_length=20, blank=True)
+    description = models.TextField("Описание", blank=True)
     study_group = models.ForeignKey(
         StudyGroup,
         on_delete=models.CASCADE,
         related_name="subjects",
-        verbose_name=_("Study Group"),
+        verbose_name="Группа",
         null=True,
     )
-    created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
+    created_at = models.DateTimeField("Создано", auto_now_add=True)
 
     class Meta:
-        verbose_name = _("Subject")
-        verbose_name_plural = _("Subjects")
+        verbose_name = "Предмет"
+        verbose_name_plural = "Предметы"
         ordering = ["study_group", "name"]
         unique_together = ["name", "study_group"]
 
@@ -52,9 +51,9 @@ class Subject(models.Model):
 class UserRole(models.TextChoices):
     """User role choices."""
 
-    ADMIN = "admin", _("Administrator")
-    TEACHER = "teacher", _("Teacher")
-    STUDENT = "student", _("Student")
+    ADMIN = "admin", "Администратор"
+    TEACHER = "teacher", "Преподаватель"
+    STUDENT = "student", "Студент"
 
 
 class User(AbstractUser):
@@ -65,12 +64,12 @@ class User(AbstractUser):
     """
 
     # First and last name do not cover name patterns around the globe
-    name = CharField(_("Name of User"), blank=True, max_length=255)
+    name = CharField("Имя пользователя", blank=True, max_length=255)
     first_name = None  # type: ignore[assignment]
     last_name = None  # type: ignore[assignment]
 
     role = models.CharField(
-        _("Role"),
+        "Роль",
         max_length=20,
         choices=UserRole.choices,
         default=UserRole.STUDENT,
@@ -81,14 +80,12 @@ class User(AbstractUser):
         null=True,
         blank=True,
         related_name="students",
-        verbose_name=_("Study Group"),
+        verbose_name="Группа",
     )
     is_approved = models.BooleanField(
-        _("Is Approved"),
+        "Одобрен",
         default=False,
-        help_text=_(
-            "Designates whether the user account has been approved by an admin.",
-        ),
+        help_text="Указывает, была ли учетная запись одобрена администратором.",
     )
 
     def get_absolute_url(self) -> str:
@@ -120,20 +117,20 @@ class TeacherSubject(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name="teaching_subjects",
-        verbose_name=_("Teacher"),
+        verbose_name="Преподаватель",
         limit_choices_to={"role": UserRole.TEACHER},
     )
     subject = models.ForeignKey(
         Subject,
         on_delete=models.CASCADE,
         related_name="teachers",
-        verbose_name=_("Subject"),
+        verbose_name="Предмет",
     )
-    assigned_at = models.DateTimeField(_("Assigned At"), auto_now_add=True)
+    assigned_at = models.DateTimeField("Назначено", auto_now_add=True)
 
     class Meta:
-        verbose_name = _("Teacher Subject")
-        verbose_name_plural = _("Teacher Subjects")
+        verbose_name = "Назначение преподавателя"
+        verbose_name_plural = "Назначения преподавателей"
         unique_together = ["teacher", "subject"]
         ordering = ["teacher", "subject"]
 
