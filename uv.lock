@@ -555,7 +555,7 @@ wheels = [
 
 [[package]]
 name = "django-smartbase-admin"
-version = "0.2.30"
+version = "1.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
@@ -566,11 +566,12 @@ dependencies = [
     { name = "django-nested-admin" },
     { name = "django-widget-tweaks" },
     { name = "easy-thumbnails", extra = ["svg"] },
+    { name = "setuptools" },
     { name = "xlsxwriter" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a7/40/cea4ab3a7412c347a3e71947b8b190a1f04a3edc30f3f794371db1736860/django_smartbase_admin-0.2.30.tar.gz", hash = "sha256:045216a8b1725685578fc2e80044a643c6f4d956837813ce85f10d386112f2d1", size = 2817086, upload-time = "2024-05-27T13:54:23.279Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7a/74/8c117eae3ae58c1cfbf45abdcedbf0861adcc6f73bbf26113fbbf00900f4/django_smartbase_admin-1.1.2.tar.gz", hash = "sha256:e158bf35e0edd05bca4e851a37be02b9a32203d6b15b6e4b1e5839da327d83a2", size = 3156083, upload-time = "2026-03-03T10:46:10.979Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/aa/69/fc68624b9444092aa7523186d5f7b89f09981cb3cdf31c42c7dc3777b8c6/django_smartbase_admin-0.2.30-py3-none-any.whl", hash = "sha256:c4ac4808fa803509ff56c077876823fd797978ff3c1fd638b580c95d3635e002", size = 3051338, upload-time = "2024-05-27T13:54:21.511Z" },
+    { url = "https://files.pythonhosted.org/packages/f6/76/4591b7343d00d7f37dd125303a7b58eb2926029e1e1e0f9ae1913cc8cb66/django_smartbase_admin-1.1.2-py3-none-any.whl", hash = "sha256:7a241ebbe4dce3465cb379aaca5f07c0f6b4cdd62e388f8beb14a8189c000ca0", size = 3424736, upload-time = "2026-03-03T10:46:08.654Z" },
 ]
 
 [[package]]
@@ -1409,6 +1410,15 @@ wheels = [
 ]
 
 [[package]]
+name = "setuptools"
+version = "67.8.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/03/20/630783571e76e5fa5f3e9f29398ca3ace377207b8196b54e0ffdf09f12c1/setuptools-67.8.0.tar.gz", hash = "sha256:62642358adc77ffa87233bc4d2354c4b2682d214048f500964dbe760ccedf102", size = 2492475, upload-time = "2023-05-19T19:38:37.607Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f5/2c/074ab1c5be9c7d523d8d6d69d1f46f450fe7f11713147dc9e779aa4ca4ea/setuptools-67.8.0-py3-none-any.whl", hash = "sha256:5df61bf30bb10c6f756eb19e7c9f3b473051f48db77fddbe06ff2ca307df9a6f", size = 1093916, upload-time = "2023-05-19T19:38:35.61Z" },
+]
+
+[[package]]
 name = "six"
 version = "1.17.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1623,7 +1633,7 @@ requires-dist = [
     { name = "django-model-utils", specifier = "==5.0.0" },
     { name = "django-redis", specifier = "==6.0.0" },
     { name = "django-sekizai", specifier = "==4.1.0" },
-    { name = "django-smartbase-admin", specifier = "==0.2.30" },
+    { name = "django-smartbase-admin", specifier = "==1.1.2" },
     { name = "django-widget-tweaks", specifier = "==1.5.0" },
     { name = "easy-thumbnails", specifier = "==2.10" },
     { name = "gunicorn", specifier = "==25.1.0" },
