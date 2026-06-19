@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Работы студента - StudyFile{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'assignments:teacher_students' %}">Студенты</a></li>
+      <li class="breadcrumb-item active">{{ student.name|default:student.username }}</li>
+    </ol>
+  </nav>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="mb-0">Работы студента</h1>
+      <p class="text-muted mb-0">
+        {{ student.name|default:student.username }}
+        {% if student.study_group %}
+          (группа: {{ student.study_group.name }})
+        {% endif %}
+      </p>
+    </div>
+    {% if submissions %}
+      <a href="{% url 'assignments:student_submissions_download' student.pk %}" class="btn btn-success">
+        Скачать все (ZIP)
+      </a>
+    {% endif %}
+  </div>
+
+  {% if submissions %}
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Задание</th>
+            <th>Предмет</th>
+            <th>Сдано</th>
+            <th>Статус</th>
+            <th>Оценка</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for submission in submissions %}
+            <tr>
+              <td>
+                <a href="{% url 'assignments:detail' submission.assignment.pk %}">
+                  {{ submission.assignment.title }}
+                </a>
+              </td>
+              <td>{{ submission.assignment.subject.name }}</td>
+              <td>{{ submission.submitted_at|date:"Y-m-d H:i" }}</td>
+              <td>
+                <span class="badge bg-{% if submission.status == 'graded' %}success{% elif submission.status == 'returned' %}warning{% else %}info{% endif %}">
+                  {{ submission.get_status_display }}
+                </span>
+              </td>
+              <td>{{ submission.grade|default:"-" }}</td>
+              <td>
+                <a href="{% url 'assignments:submission_detail' submission.pk %}" class="btn btn-sm btn-outline-primary">
+                  Просмотр
+                </a>
+                <a href="{% url 'assignments:submission_grade' submission.pk %}" class="btn btn-sm btn-outline-success">
+                  Оценить
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="alert alert-info">
+      У этого студента пока нет сданных работ.
+    </div>
+  {% endif %}
+</div>
+{% endblock content %}

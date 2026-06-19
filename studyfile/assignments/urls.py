@@ -37,4 +37,20 @@ urlpatterns = [
         views.SubmissionGradeView.as_view(),
         name="submission_grade",
     ),
+    # Student management URLs
+    path(
+        "students/",
+        views.TeacherStudentsListView.as_view(),
+        name="teacher_students",
+    ),
+    path(
+        "students/<int:student_pk>/",
+        views.StudentSubmissionsView.as_view(),
+        name="student_submissions",
+    ),
+    path(
+        "students/<int:student_pk>/download/",
+        views.StudentSubmissionsDownloadView.as_view(),
+        name="student_submissions_download",
+    ),
 ]
