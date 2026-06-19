@@ -412,30 +412,35 @@ class TeacherStudentsListView(TeacherRequiredMixin, ListView):
 
 
 class StudentSubmissionsView(TeacherRequiredMixin, ListView):
-    """List all submissions for a specific student (from teacher's assignments)."""
+    """List all assignments for a student, showing submission status."""
 
-    model = Submission
+    model = Assignment
     template_name = "assignments/student_submissions.html"
-    context_object_name = "submissions"
+    context_object_name = "assignments"
 
     def get_queryset(self) -> QuerySet:
         user = self.request.user
         self.student = get_object_or_404(User, pk=self.kwargs["student_pk"], role="student")
 
-        if user.is_admin:
-            return Submission.objects.filter(student=self.student).select_related(
-                "assignment",
-                "assignment__subject",
-            )
+        queryset = Assignment.objects.filter(
+            subject__study_group=self.student.study_group,
+        )
 
-        return Submission.objects.filter(
-            student=self.student,
-            assignment__teacher=user,
-        ).select_related("assignment", "assignment__subject")
+        if not user.is_admin:
+            queryset = queryset.filter(teacher=user)
+
+        return queryset.select_related("subject", "subject__study_group")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["student"] = self.student
+
+        submissions = Submission.objects.filter(
+            student=self.student,
+            assignment__in=context["assignments"],
+        ).select_related("assignment")
+        context["submission_map"] = {s.assignment_id: s for s in submissions}
+
         return context
 
 
