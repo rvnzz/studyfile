@@ -60,3 +60,18 @@ services:
       - django
     volumes:
       - production_django_media:/usr/share/nginx/media:ro
+
+  celery:
+    build:
+      context: .
+      dockerfile: ./compose/production/django/Dockerfile
+    image: studyfile_production_django
+    volumes:
+      - production_django_media:/app/studyfile/media
+    depends_on:
+      - django
+      - redis
+    env_file:
+      - ./.envs/.production/.django
+      - ./.envs/.production/.postgres
+    command: celery -A config.celery_app worker -l INFO --concurrency=2

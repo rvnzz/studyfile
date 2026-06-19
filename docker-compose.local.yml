@@ -12,6 +12,7 @@ services:
     container_name: studyfile_local_django
     depends_on:
       - postgres
+      - redis
     volumes:
       - /app/.venv
       - .:/app:z
@@ -33,3 +34,24 @@ services:
       - studyfile_local_postgres_data_backups:/backups
     env_file:
       - ./.envs/.local/.postgres
+
+  redis:
+    image: docker.io/redis:7.2
+    container_name: studyfile_local_redis
+
+  celery:
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+    image: studyfile_local_django
+    container_name: studyfile_local_celery
+    depends_on:
+      - django
+      - redis
+    volumes:
+      - /app/.venv
+      - .:/app:z
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    command: celery -A config.celery_app worker -l INFO

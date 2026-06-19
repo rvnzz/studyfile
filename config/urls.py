@@ -29,6 +29,11 @@ urlpatterns = [
         "assignments/",
         include("studyfile.assignments.urls", namespace="assignments"),
     ),
+    # AI Grading app
+    path(
+        "ai/",
+        include("studyfile.ai_grading.urls", namespace="ai_grading"),
+    ),
     # Your stuff: custom urls includes go here
     # ...
     # Media files

@@ -53,6 +53,12 @@ class Submission(models.Model):
         GRADED = "graded", "Оценено"
         RETURNED = "returned", "Возвращено"
 
+    class AIStatus(models.TextChoices):
+        PENDING = "pending", "Ожидает"
+        PROCESSING = "processing", "Обрабатывается"
+        COMPLETED = "completed", "Завершено"
+        FAILED = "failed", "Ошибка"
+
     assignment = models.ForeignKey(
         Assignment,
         on_delete=models.CASCADE,
@@ -96,6 +102,25 @@ class Submission(models.Model):
     )
     submitted_at = models.DateTimeField("Сдано", auto_now_add=True)
     graded_at = models.DateTimeField("Оценено", null=True, blank=True)
+    ai_grade = models.DecimalField(
+        "Оценка AI",
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    ai_feedback = models.TextField(
+        "Фидбек AI",
+        blank=True,
+    )
+    ai_status = models.CharField(
+        "Статус AI",
+        max_length=20,
+        choices=AIStatus.choices,
+        default="",
+        blank=True,
+    )
+    ai_graded_at = models.DateTimeField("AI оценено", null=True, blank=True)
 
     class Meta:
         verbose_name = "Сдача задания"

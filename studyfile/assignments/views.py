@@ -292,6 +292,25 @@ class SubmissionGradeView(TeacherRequiredMixin, UpdateView):
             return Submission.objects.all()
         return Submission.objects.filter(assignment__teacher=self.request.user)
 
+    def get_initial(self):
+        initial = super().get_initial()
+        submission = self.get_object()
+        if submission.ai_status == Submission.AIStatus.COMPLETED and submission.ai_grade is not None:
+            if not submission.grade:
+                initial["grade"] = submission.ai_grade
+            if not submission.teacher_comment:
+                initial["teacher_comment"] = submission.ai_feedback
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        submission = self.get_object()
+        context["has_ai_grade"] = (
+            submission.ai_status == Submission.AIStatus.COMPLETED
+            and submission.ai_grade is not None
+        )
+        return context
+
     def form_valid(self, form):
         form.instance.graded_at = timezone.now()
         messages.success(self.request, "Сдача успешно оценена.")

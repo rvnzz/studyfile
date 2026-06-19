@@ -34,6 +34,20 @@
           </a>
         </div>
       </div>
+
+      {% if has_ai_grade %}
+        <div class="card border-info">
+          <div class="card-header bg-info text-white">
+            <h6 class="mb-0">Оценка AI: {{ submission.ai_grade }}</h6>
+          </div>
+          <div class="card-body">
+            {% if submission.ai_feedback %}
+              <p class="small">{{ submission.ai_feedback|truncatewords:50 }}</p>
+            {% endif %}
+            <p class="text-muted small mb-0">Форма предзаполнена данными AI.</p>
+          </div>
+        </div>
+      {% endif %}
     </div>
 
     <div class="col-md-8">
